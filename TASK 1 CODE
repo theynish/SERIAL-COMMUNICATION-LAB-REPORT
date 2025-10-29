@@ -1,0 +1,46 @@
+import matplotlib.pyplot as plt
+import matplotlib
+import serial
+import time
+matplotlib.use('TkAgg')
+
+
+ser = serial.Serial('COM3', 9600)
+time.sleep(2)
+
+plt.ion()
+
+times = []
+values = []
+
+figure,axes = plt.subplots()
+line, = axes.plot(times, values, 'r-')
+
+
+axes.set_xlabel("Samples")
+axes.set_ylabel("Value")
+axes.set_title("Live Potentiometer Data")
+axes.legend()
+
+sample = 0
+try:
+    while True:
+        pot_value = ser.readline().decode().strip()
+        values.append(int(pot_value))
+        times.append(sample)
+        sample += 1
+
+        line.set_xdata(times)
+        line.set_ydata(values)
+        axes.relim()
+        axes.autoscale_view()
+        print("Potentiometer Value:", pot_value)
+        plt.pause(0.01)
+        time.sleep(0.5)
+
+
+except KeyboardInterrupt:
+    ser.close()
+    print("Serial connection closed.")
+    plt.ioff()
+    plt.show()
